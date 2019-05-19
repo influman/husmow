@@ -1,0 +1,279 @@
+{
+	"plugin_id": "husmow",
+	"name_fr": "Husqvarna Automower",
+	"icon": "husmow.png",
+	"version": "1.13",
+	"creation_date": "2019-05-12",
+	"modification_date": "2019-05-18",
+	"author": "Influman, Domotifred, Enr37, et merci Chrisz", 
+	"description_fr": "Contrôle des tondeuses Automower d'<a href='https://www.husqvarna.com/fr/produits/robots-tondeuses/'>Husqvarna</a> via API",
+	"description_en": "Husqvarna Automower Control",
+	"forum_link": "",
+	"parameters":
+	[
+		{
+			"parameter": "LOGIN",
+			"description": "Login",
+			"default_value": "",
+			"xtype": "textfield",
+			"field": "allowBlank: false, width: 150"
+		},
+		{
+			"parameter": "PASS",
+			"description": "Password",
+			"default_value": "",
+			"xtype": "textfield",
+			"field": "allowBlank: false, width: 150"
+		},
+		{
+			"parameter": "NUM",
+			"description": "Mower n°",
+			"default_value": "1",
+			"xtype": "textfield",
+			"field": "allowBlank: false, width: 30"
+		}
+	],
+	"scripts":
+	[
+		{
+			"name": "husmow.php"
+		}
+	],
+	"devices":
+	[
+		{
+			"device_id": "statut",
+			"module_id": "51",
+			"type": "http",
+			"name_fr": "Husqvarna Automower - Global Status",
+			"icon": "husmow.png",
+			"utilisation_id": "35",
+			"parameters":
+			{
+				"VAR1": "plugin.parameters.LOGIN,plugin.parameters.PASS",
+				"VAR2": "plugin.parameters.NUM",
+				"VAR3": "",
+				"value_type": "string",
+				"ignore_errors": 3,
+				"RAW_URL": "http://localhost/script/?exec=husmow.php&action=getstatus&server=[VAR1]&mower=[VAR2]",
+				"RAW_XPATH": "/HUSQVARNA/STATUS",
+				"POLLING": "5"
+			}
+		},
+		{
+			"device_id": "control",
+			"parent_id": "statut",
+			"module_id": "41",
+			"type": "http",
+			"name_fr": "Commande du robot tondeuse",
+			"icon": "husmow.png",
+			"utilisation_id": "43",
+			"parameters":
+			{
+				"VAR1": "plugin.parameters.LOGIN,plugin.parameters.PASS",
+				"VAR2": "plugin.parameters.NUM",
+				"VAR3": "",
+				"value_type": "list",
+				"ignore_errors": 3,
+				"RAW_URL": "",
+				"RAW_XPATH": "",
+				"POLLING": "5"
+			},
+			"values":
+			[
+				{ "value": "1", "description": "Démarrage", "icon": "HusqCtrl2.png", "http_url": "http://localhost/script/?exec=husmow.php", "http_type": "GET",  "http_params": "&server=[VAR1]&action=command&value=start&mower=[VAR2]" },
+				{ "value": "2", "description": "Arrêt", "icon": "HusqCtrl3.png", "http_url": "http://localhost/script/?exec=husmow.php", "http_type": "GET",  "http_params": "&server=[VAR1]&action=command&value=stop&mower=[VAR2]" },
+				{ "value": "3", "description": "Park", "icon": "HusqCtrl1.png", "http_url": "http://localhost/script/?exec=husmow.php", "http_type": "GET",  "http_params": "&server=[VAR1]&action=command&value=park&mower=[VAR2]"}
+			]
+		},
+		{
+			"device_id": "mowerst",
+			"parent_id": "statut",
+			"module_id": "51",
+			"type": "http",
+			"name_fr": "Etat du robot tondeuse",
+			"icon": "husmow.png",
+			"utilisation_id": "35",
+			"parameters":
+			{
+				"VAR1": "plugin.parameters.LOGIN,plugin.parameters.PASS",
+				"VAR2": "plugin.parameters.NUM",
+				"VAR3": "",
+				"value_type": "list",
+				"ignore_errors": 3,
+				"RAW_URL": "http://localhost/script/?exec=husmow.php&action=polling&server=[VAR1]&mower=[VAR2]",
+				"RAW_XPATH": "/HUSQVARNA/MOWER_STATUS",
+				"POLLING": "5"
+			},
+			"values":
+			[
+				{ "value": "PARKED_AUTOTIMER", "description": "Sur Minuterie Adaptative (Météo)", "icon": "HusqSta10.png" },
+				{ "value": "PARKED_TIMER", "description": "Sur Minuterie", "icon": "HusqSta12.png" },
+				{ "value": "PARKED_PARKED_SELECTED", "description": "En Retour forcé à la base", "icon": "HusqSta11.png" },
+				{ "value": "OK_CHARGING", "description": "En recharge de Batterie", "icon": "HusqSta5.png" },
+				{ "value": "OK_LEAVING", "description": "En train de quitter la base", "icon": "HusqSta8.png" },
+				{ "value": "OK_CUTTING", "description": "En tonte", "icon": "HusqSta6.png" },
+				{ "value": "OK_CUTTING_NOT_AUTO", "description": "En Tonte Forcée", "icon": "HusqSta7.png" },
+				{ "value": "PAUSED", "description": "En pause", "icon": "HusqSta13.png" },
+				{ "value": "OK_SEARCHING", "description": "En Recherche de la Base", "icon": "HusqSta17.png" },
+				{ "value": "OFF_HATCH_OPEN", "description": "Arrêt - Trappe ouverte", "icon": "HusqSta4.png" },
+				{ "value": "OFF_HATCH_CLOSED_DISABLED", "description": "Eteint - Trappe fermée Robot arrêté", "icon": "HusqSta3.png" },
+				{ "value": "OFF_DISABLED", "description": "Eteint", "icon": "HusqSta2.png" },
+				{ "value": "ERROR", "description": "En erreur", "icon": "HusqSta1.png" }
+			]
+		},
+		{
+			"device_id": "error",
+			"parent_id": "statut",
+			"module_id": "51",
+			"type": "http",
+			"name_fr": "Message d'erreur en cours",
+			"icon": "husmow.png",
+			"utilisation_id": "35",
+			"parameters":
+			{
+				"VAR1": "plugin.parameters.LOGIN,plugin.parameters.PASS",
+				"VAR2": "plugin.parameters.NUM",
+				"VAR3": "",
+				"value_type": "list",
+				"ignore_errors": 3,
+				"RAW_URL": "http://localhost/script/?exec=husmow.php&action=polling&server=[VAR1]&mower=[VAR2]",
+				"RAW_XPATH": "/HUSQVARNA/LASTERROR",
+				"POLLING": "5"
+			},
+			"values":
+			[
+				{ "value": "0", "description": "Aucun", "icon": "HusqErr0.png" },
+				{ "value": "N/A", "description": "Nécessite charge manuelle", "icon": "HusqErrNA.png" },
+				{ "value": "1", "description": "Tondeuse en dehors zone de tonte", "icon": "HusqErr1.png" },
+				{ "value": "2", "description": "Pas de signal boucle", "icon": "HusqErr2.png" },
+				{ "value": "4", "description": "Problème capteur boucle avant", "icon": "HusqErr4.png" },
+				{ "value": "5", "description": "Problème capteur boucle arrière", "icon": "HusqErr5.png" },
+				{ "value": "6", "description": "Problème capteur de boucle", "icon": "HusqErr6.png" },
+				{ "value": "7", "description": "Problème capteur de boucle", "icon": "HusqErr7.png" },
+				{ "value": "8", "description": "Code PIN incorrect", "icon": "HusqErr8.png" },
+				{ "value": "9", "description": "Tondeuse coincée", "icon": "HusqErr9.png" },
+				{ "value": "10", "description": "Tondeuse à l'envers (sur le dos)", "icon": "HusqErr10.png" },
+				{ "value": "11", "description": "Batterie faible", "icon": "HusqErr11.png" },
+				{ "value": "12", "description": "Batterie vide", "icon": "HusqErr12.png" },
+				{ "value": "13", "description": "Tondeuse a dérapé", "icon": "HusqErr13.png" },
+				{ "value": "15", "description": "Tondeuse soulevée", "icon": "HusqErr15.png" },
+				{ "value": "16", "description": "Coincée dans station charge", "icon": "HusqErr16.png" },
+				{ "value": "17", "description": "Station de charge inaccessible", "icon": "HusqErr17.png" },
+				{ "value": "18", "description": "Problème capteur collision AR", "icon": "HusqErr18.png" },
+				{ "value": "19", "description": "Problème capteur collision AV", "icon": "HusqErr19.png" },
+				{ "value": "20", "description": "Moteur de roue droite bloqué", "icon": "HusqErr20.png" },
+				{ "value": "21", "description": "Moteur de roue gauche bloqué", "icon": "HusqErr21.png" },
+				{ "value": "22", "description": "Problème de moteur de roue droite", "icon": "HusqErr22.png" },
+				{ "value": "23", "description": "Problème de moteur de roue gauche", "icon": "HusqErr23.png" },
+				{ "value": "24", "description": "Problème du moteur de coupe", "icon": "HusqErr24.png" },
+				{ "value": "25", "description": "Moteur de coupe bloqué", "icon": "HusqErr25.png" },
+				{ "value": "26", "description": "Combinaison de sous dispositifs non valide", "icon": "HusqErr26.png" },
+				{ "value": "27", "description": "Réglages restaurés", "icon": "HusqErr27.png" },
+				{ "value": "28", "description": "Problème du circuit de mémoire", "icon": "HusqErr28.png" },
+				{ "value": "30", "description": "Problème de batterie", "icon": "HusqErr30.png" },
+				{ "value": "31", "description": "Problème bouton STOP", "icon": "HusqErr31.png" },
+				{ "value": "32", "description": "Problème de capteur d inclinaison", "icon": "HusqErr32.png" },
+				{ "value": "33", "description": "Tondeuse inclinée", "icon": "HusqErr33.png" },
+				{ "value": "35", "description": "Moteur de roue droite surchargé", "icon": "HusqErr35.png" },
+				{ "value": "36", "description": "Moteur de roue gauche surchargé", "icon": "HusqErr36.png" },
+				{ "value": "37", "description": "Courant de charge trop élevé", "icon": "HusqErr37.png" },
+				{ "value": "38", "description": "Problème de communication entre la carte MMI et la carte électronique principale", "icon": "HusqErr38.png" },
+				{ "value": "42", "description": "Plage hauteur de coupe limitée", "icon": "HusqErr42.png" },
+				{ "value": "43", "description": "Ajust. hauteur coupe imprévu", "icon": "HusqErr43.png" },
+				{ "value": "44", "description": "Problème hauteur de coupe", "icon": "HusqErr44.png" },
+				{ "value": "45", "description": "Problème entraînement coupe", "icon": "HusqErr45.png" },
+				{ "value": "46", "description": "Plage hauteur de coupe limitée", "icon": "HusqErr46.png" },
+				{ "value": "47", "description": "Problème entraînement coupe", "icon": "HusqErr47.png" },
+				{ "value": "69", "description": "Arrêt manuel de l'interrupteur", "icon": "HusqErr69.png" },				
+				{ "value": "74", "description": "ALERTE - En dehors de la zone de protection virtuelle", "icon": "HusqErr74.png" }
+			]
+		},
+		{
+			"device_id": "globalst",
+			"parent_id": "statut",
+			"module_id": "51",
+			"type": "http",
+			"name_fr": "Mode de fonctionnement du robot",
+			"icon": "husmow.png",
+			"utilisation_id": "35",
+			"parameters":
+			{
+				"VAR1": "plugin.parameters.LOGIN,plugin.parameters.PASS",
+				"VAR2": "plugin.parameters.NUM",
+				"VAR3": "",
+				"value_type": "list",
+				"ignore_errors": 3,
+				"RAW_URL": "http://localhost/script/?exec=husmow.php&action=polling&server=[VAR1]&mower=[VAR2]",
+				"RAW_XPATH": "/HUSQVARNA/MODE",
+				"POLLING": "5"
+			},
+			"values":
+			[
+				{ "value": "AUTO", "description": "Automatique", "icon": "HusqGlo1.png" },
+				{ "value": "HOME", "description": "Manuel (Mode Park sur sa base)", "icon": "HusqGlo2.png" }
+			]
+		},
+		{
+			"device_id": "nextstart",
+			"parent_id": "statut",
+			"module_id": "51",
+			"type": "http",
+			"name_fr": "Prochain démarrage du robot",
+			"icon": "HusqDem1.png",
+			"utilisation_id": "35",
+			"parameters":
+			{
+				"VAR1": "plugin.parameters.LOGIN,plugin.parameters.PASS",
+				"VAR2": "plugin.parameters.NUM",
+				"VAR3": "",
+				"value_type": "string",
+				"ignore_errors": 3,
+				"RAW_URL": "http://localhost/script/?exec=husmow.php&action=polling&server=[VAR1]&mower=[VAR2]",
+				"RAW_XPATH": "/HUSQVARNA/NEXTSTART",
+				"POLLING": "5"
+			}
+		},
+		{
+			"device_id": "geofence",
+			"parent_id": "statut",
+			"module_id": "51",
+			"type": "http",
+			"name_fr": "Géolocalisation",
+			"icon": "husmow.png",
+			"utilisation_id": "35",
+			"parameters":
+			{
+				"VAR1": "plugin.parameters.LOGIN,plugin.parameters.PASS",
+				"VAR2": "plugin.parameters.NUM",
+				"VAR3": "",
+				"value_type": "string",
+				"ignore_errors": 3,
+				"RAW_URL": "http://localhost/script/?exec=husmow.php&action=polling&server=[VAR1]&mower=[VAR2]",
+				"RAW_XPATH": "concat(/HUSQVARNA/LATITUDE, ',', /HUSQVARNA/LONGITUDE)",
+				"POLLING": "5"
+			}
+		},
+		{
+			"device_id": "battery",
+			"parent_id": "statut",
+			"module_id": "51",
+			"type": "http",
+			"name_fr": "Etat de la batterie",
+			"icon": "Batterie.png",
+			"utilisation_id": "35",
+			"value_unit": "%",
+			"parameters":
+			{
+				"VAR1": "plugin.parameters.LOGIN,plugin.parameters.PASS",
+				"VAR2": "plugin.parameters.NUM",
+				"VAR3": "",
+				"value_type": "float",
+				"ignore_errors": 3,
+				"RAW_URL": "http://localhost/script/?exec=husmow.php&action=polling&server=[VAR1]&mower=[VAR2]",
+				"RAW_XPATH": "/HUSQVARNA/BATTERY",
+				"POLLING": "5"
+			}
+		}
+	]
+}
